@@ -45,12 +45,8 @@ The dataset has more columns than we used, for example number of pregnancies, BM
 
 # 4. Priors
 
-<<<<<<< Updated upstream
-=======
-# 4. Priors
+We use weekly informative priors for parameters $$\mu$$ and $$\sigma$$. They are chosen based on the blood pressure data that we get from the data set. From The plotted data we get weekly  
 
-We use weekly informative priors for parameters $$\mu$$ and $$\sigma$$. They are chosen based on the blood pressure data that we get from the dataset. From The plotted data we get weekly  
->>>>>>> Stashed changes
 
 
 # Convergence diagnostics 

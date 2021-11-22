@@ -1,9 +1,15 @@
 ---
-title: "BDA - Assignment 7"
-date: "7/10/2021"
-output: 
-  pdf_document: 
-    toc: no
+title: "BDA Project"
+date: "11/2021"
+author: "Arthur Aspelin, Jannica Savander, Christian Segercrantz"
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 2
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
 urlcolor: blue
 ---
 
@@ -16,6 +22,32 @@ options(digits = 3)
 knitr::opts_chunk$set(warning=FALSE)
 data <- read.csv(file = 'diabetes.csv')
 ```
+
+# Introduction
+
+# Description of the data
+
+# Description of the models
+
+# Priors
+
+# Stan code
+
+# Convergence diagnostics 
+
+# Posterior predictive checks
+
+# Model comparison with LOO-CV
+
+# Predictive performance assessment (if applicable)
+
+# Sensitivity analysis
+
+# Discussion
+
+# Conclusion 
+
+# Self-reflection
 
 ```{r}
 data <- data %>%

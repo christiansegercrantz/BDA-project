@@ -32,7 +32,7 @@ Solving the problem, firstly, we want to estimate what type of distribution can 
 
 Main modeling idea is to test with different Bayesian models how to get accurate estimates of the parameters that could describe blood pressure.
 
-![Damage that can be caused from high blood pressure](blood_pressure.jpg)
+![Damage that can be caused from high blood pressure](blood_pressure.jpg){width=50%, height = 50%}
 
 
 # 2. Description of the data

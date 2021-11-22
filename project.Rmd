@@ -46,14 +46,6 @@ The whole dataset with diastolic blood pressure by age looks like this.
 =======
 # 3. Description of the models
 
-# 4. Priors
-
-We use weekly informative priors for parameters $$\mu$$, $$\sigma$$ and $$Var$$. They are chosen based on the blood pressure data that we get from the data set. From the plotted data we choose priors that possibly could describe a normal distribution describing the blood pressure. $$\mu$$, $$\sigma$$ and $$Var$$ for the distribution of our two different age groups:
-
--  For $$Age \leq 30: Prior\mu = 65,\:Prior\sigma=10,\: PriorVar=20$$. Our prior $$\mu$$ is slightly lower here than for the older age group. Other priors stay the same.
--  For $$Age > 30: Prior\mu = 75,\:Prior\sigma=10,\: PriorVar=20$$. Here the prior $$\mu$$ is higher but other priors stay the same.
-
-
 
 # Convergence diagnostics 
 
@@ -119,8 +111,10 @@ $\sigma \sim \text{Inv-}\chi^2(\tau)$.
 
 # 4. Priors
 
+We use weekly informative priors for parameters $$\mu$$, $$\sigma$$ and $$Var$$. They are chosen based on the blood pressure data that we get from the data set. From the plotted data we choose priors that possibly could describe a normal distribution describing the blood pressure. $$\mu$$, $$\sigma$$ and $$Var$$ for the distribution of our two different age groups:
 
-We use weekly informative priors for parameters $$\mu$$ and $$\sigma$$. They are chosen based on the blood pressure data that we get from the data set. From The plotted data we get weekly  
+-  For $$Age \leq 30: Prior\mu = 65,\:Prior\sigma=10,\: PriorVar=20$$. Our prior $$\mu$$ is slightly lower here than for the older age group. Other priors stay the same.
+-  For $$Age > 30: Prior\mu = 75,\:Prior\sigma=10,\: PriorVar=20$$. Here the prior $$\mu$$ is higher but other priors stay the same.
 
 
 

@@ -41,9 +41,6 @@ We used blood pressure data combined with age data from the [Diabetes Dataset fr
 
 The dataset has more columns than we used, for example number of pregnancies, BMI and diabetes classification. We only used the columns BloodPressure, describing the diastolic blood pressure, and Age, describing the age of the patient in years. The diastolic blood pressure is the pressure the heart applies on the walls of the arteries between the beats (@diastolic_pressure). The unit for the diastolic blood pressure is mmHg, and a normal value is usually below 80. Higher values might indicate hypertension, which increases with age in Western countries (@gurven_blackwell_rodriguez_stieglitz_kaplan_2012).
 
-<<<<<<< Updated upstream
-The whole dataset with diastolic blood pressure by age looks like this.
-=======
 # 3. Description of the models
 
 
@@ -54,7 +51,6 @@ The whole dataset with diastolic blood pressure by age looks like this.
 
 
 # Predictive performance assessment (if applicable)
->>>>>>> Stashed changes
 
 ```{r, warning=FALSE, echo=FALSE}
 ggplot(data, aes(x=BloodPressure)) +
@@ -68,13 +64,23 @@ We separated the data in two parts based on age group. Using the cutoff value 30
 ```{r}
 data <- data %>%
   filter(BloodPressure > 0) %>%
+  select(BloodPressure, Age) %>%
   mutate(AgeGroup = case_when(
   Age <= 30      ~ "Young",
   Age > 30       ~ "Old")
   )
+knitr::kable(head(data),
+             caption = "The first rows of the dataset, with the additinal 'AgeGroup' column.")
 ```
 
-```{r}
+```{r, warning=FALSE, echo=FALSE, fig.cap="A histogram of the complete data set for the blood pressure. A density approximation plot and a mean line is included as well."}
+ggplot(data, aes(x=BloodPressure)) +
+  geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="white") +
+  geom_density(alpha=.2, fill="#FF6666") +
+  geom_vline(aes(xintercept=mean(BloodPressure)), color="#00BFC4", linetype="dashed", size=1)
+```
+
+```{r, fig.cap="Histograms with density approximations and mean lines for both age groups."}
 means <- data %>%
   group_by(AgeGroup) %>%
   summarise(mean = mean(BloodPressure), n = n())
@@ -177,7 +183,7 @@ generated quantities {
 data_old <- data %>%
   filter(AgeGroup == "Old")
 
-mean_mu_prior_old = mean(data_old$BloodPressure)
+mean_mu_prior_old = 75
 mean_sigma_prior_old = 10
 var_prior_old = 20
 data_nonhiera_old <- list(
@@ -206,15 +212,15 @@ fit_nonhiera_old = sampling(nonhieramodel,
 data_young <- data %>%
   filter(AgeGroup == "Young")
 
-mean_mu_prior_old = mean(data_young$BloodPressure)
-mean_sigma_prior_old = 10
-var_prior_old = 20
+mean_mu_prior_young = 65
+mean_sigma_prior_young = 10
+var_prior_young = 20
 data_nonhiera_young <- list(
   y = data_young$BloodPressure,
   N = length(data_young$BloodPressure),
-  mean_mu_prior = mean_mu_prior_old,
-  mean_sigma_prior = mean_sigma_prior_old,
-  var_prior = var_prior_old
+  mean_mu_prior = mean_mu_prior_young,
+  mean_sigma_prior = mean_sigma_prior_young,
+  var_prior = var_prior_young
 )
 ```
 
@@ -270,7 +276,7 @@ generated quantities {
 ```
 
 ```{r}
-mean_mu_prior = mean(data$BloodPressure)
+mean_mu_prior = 70
 mean_sigma_prior = 10
 var_prior = 20
 data_hiera_old <- list(
@@ -316,34 +322,38 @@ fit_hiera_young = sampling(hieramodel,
 # Posterior predictive checks
 
 ```{r}
-head(monitor(fit_nonhiera_old, print = FALSE),3)
+knitr::kable(head(monitor(fit_nonhiera_old, print = FALSE),3),
+             caption = "The diagnostics of the nonhierarcical model for the old age group.")
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.cap="The trace plot of the nonhierarcical model for the old age group."}
 traceplot(fit_nonhiera_old, inc_warmup = FALSE, nrow = 3, pars=c("mu", "sigma", "ypred"))
 ```
 
 ```{r}
-head(monitor(fit_nonhiera_young, print = FALSE),3)
+knitr::kable(head(monitor(fit_nonhiera_young, print = FALSE),3),
+             caption = "The diagnostics of the nonhierarcical model for the young age group.")
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.cap="The trace plot of the nonhierarcical model for the young age group."}
 traceplot(fit_nonhiera_young, inc_warmup = FALSE, nrow = 3, pars=c("mu", "sigma", "ypred"))
 ```
 
 ```{r}
-head(monitor(fit_hiera_old, print = FALSE),3)
+knitr::kable(head(monitor(fit_hiera_old, print = FALSE),3),
+             caption = "The diagnostics of the hierarcical model for the old age group.")
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.cap="The trace plot of the hierarcical model for the old age group."}
 traceplot(fit_hiera_old, inc_warmup = FALSE, nrow = 3, pars=c("mu", "sigma", "ypred"))
 ```
 
 ```{r}
-head(monitor(fit_hiera_young, print = FALSE),3)
+knitr::kable(head(monitor(fit_hiera_young, print = FALSE),3),
+             caption = "The diagnostics of the hierarcical model for the young age group.")
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.cap="The trace plot of the hierarcical model for the young age group."}
 traceplot(fit_hiera_young, inc_warmup = FALSE, nrow = 3, pars=c("mu", "sigma", "ypred"))
 ```
 
@@ -389,8 +399,8 @@ extract_hiera_young <- data.frame(extract(fit_hiera_young))
 extract_nonhiera_young <- data.frame(extract(fit_nonhiera_young))
 ```
 
-```{r, echo=FALSE}
-ggplot(extract_nonhiera_old, aes(x=ypred)) + ggtitle("Hierarical posterior predictive vs original data for the old age group") +
+```{r, echo=FALSE, fig.cap="Hierarical posterior predictive vs original data for the old age group."}
+ggplot(extract_nonhiera_old, aes(x=ypred)) +
   geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#F8766D", alpha=0.15)  + 
   geom_histogram(data= data_old, aes(x=BloodPressure,y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#00BFC4", alpha=0.15) +
   geom_density(aes(colour="Sim"),alpha=.2, fill="#FF6666") +
@@ -401,8 +411,8 @@ ggplot(extract_nonhiera_old, aes(x=ypred)) + ggtitle("Hierarical posterior predi
   scale_colour_manual(name = 'Denisty', values=c('Sim'='red','Orig'='blue'), labels = c('Predictive posterior','Original data'))
 ```
 
-```{r, echo=FALSE}
-ggplot(extract_hiera_old, aes(x=ypred)) + ggtitle("Hierarical posterior predictive vs original data for the old age group") +
+```{r, echo=FALSE, fig.cap="Hierarical posterior predictive vs original data for the old age group."}
+ggplot(extract_hiera_old, aes(x=ypred)) +
   geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#F8766D", alpha=0.15)  + 
   geom_histogram(data= data_old, aes(x=BloodPressure,y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#00BFC4", alpha=0.15) +
   geom_density(aes(colour="Sim"),alpha=.2, fill="#FF6666") +
@@ -413,8 +423,8 @@ ggplot(extract_hiera_old, aes(x=ypred)) + ggtitle("Hierarical posterior predicti
   scale_colour_manual(name = 'Denisty', values=c('Sim'='red','Orig'='blue'), labels = c('Predictive posterior','Original data'))
 ```
 
-```{r, echo=FALSE}
-ggplot(extract_hiera_old, aes(x=ypred)) + ggtitle("Posterior predictive distributions of the hierarcical versus non-hierarcical data for the old age group") +
+```{r, echo=FALSE, fig.cap="Posterior predictive distributions of the hierarcical versus non-hierarcical data for the old age group."}
+ggplot(extract_hiera_old, aes(x=ypred)) +
   geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#F8766D", alpha=0.15)  + 
   geom_histogram(data= extract_nonhiera_old, aes(x=ypred,y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#00BFC4", alpha=0.15) +
   geom_density(aes(colour="Sim"),alpha=.2, fill="#FF6666") +
@@ -425,8 +435,8 @@ ggplot(extract_hiera_old, aes(x=ypred)) + ggtitle("Posterior predictive distribu
   scale_colour_manual(name = 'Denisty', values=c('Sim'='red','Orig'='blue'), labels = c('Hierarical model','Nonhierarcical model'))
 ```
 
-```{r, echo=FALSE}
-ggplot(extract_hiera_old, aes(x=ypred)) + ggtitle("Posterior predictive distributions of the non hierarcical models for the old versus the young age group") +
+```{r, echo=FALSE, fig.cap="Posterior predictive distributions of the non hierarcical models for the old versus the young age group"}
+ggplot(extract_hiera_old, aes(x=ypred)) +
   geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#F8766D", alpha=0.15)  + 
   geom_histogram(data= extract_hiera_young, aes(x=ypred,y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#00BFC4", alpha=0.15) +
   geom_density(aes(colour="Sim"),alpha=.2, fill="#FF6666") +
@@ -474,7 +484,7 @@ gg_color_hue <- function(n) {
 colors = gg_color_hue(16)
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.cap="The complete chains, including warmup, of the sixteen combinations of prior values ploted."}
   ggplot() +
   geom_point(data=data.frame(extract(fit_sensitivity[[1]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[1])) +
   geom_point(data=data.frame(extract(fit_sensitivity[[2]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[2]))+

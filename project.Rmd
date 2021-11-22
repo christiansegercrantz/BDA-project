@@ -41,7 +41,28 @@ We used blood pressure data combined with age data from the [Diabetes Dataset fr
 
 The dataset has more columns than we used, for example number of pregnancies, BMI and diabetes classification. We only used the columns BloodPressure, describing the diastolic blood pressure, and Age, describing the age of the patient in years. The diastolic blood pressure is the pressure the heart applies on the walls of the arteries between the beats (@diastolic_pressure). The unit for the diastolic blood pressure is mmHg, and a normal value is usually below 80. Higher values might indicate hypertension, which increases with age in Western countries (@gurven_blackwell_rodriguez_stieglitz_kaplan_2012).
 
+<<<<<<< Updated upstream
 The whole dataset with diastolic blood pressure by age looks like this.
+=======
+# 3. Description of the models
+
+# 4. Priors
+
+We use weekly informative priors for parameters $$\mu$$, $$\sigma$$ and $$Var$$. They are chosen based on the blood pressure data that we get from the data set. From the plotted data we choose priors that possibly could describe a normal distribution describing the blood pressure. $$\mu$$, $$\sigma$$ and $$Var$$ for the distribution of our two different age groups:
+
+-  For $$Age \leq 30: Prior\mu = 65,\:Prior\sigma=10,\: PriorVar=20$$. Our prior $$\mu$$ is slightly lower here than for the older age group. Other priors stay the same.
+-  For $$Age > 30: Prior\mu = 75,\:Prior\sigma=10,\: PriorVar=20$$. Here the prior $$\mu$$ is higher but other priors stay the same.
+
+
+
+# Convergence diagnostics 
+
+
+
+
+
+# Predictive performance assessment (if applicable)
+>>>>>>> Stashed changes
 
 ```{r, warning=FALSE, echo=FALSE}
 ggplot(data, aes(x=BloodPressure)) +

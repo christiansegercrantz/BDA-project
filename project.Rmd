@@ -24,7 +24,15 @@ data <- read.csv(file = 'diabetes.csv')
 ```
 
 # 1. Introduction
-- jswodoj
+
+The motivation for this project is to estimate the parameters for blood pressure data with the help of Bayesian methods. High blood pressure corresponds with different diseases, such as diabetes and heart diseases. This means that it is essential to predict distribution of blood pressure and its parameters in an accurate way.
+
+Solving the problem, firstly, we want to estimate what type of distribution can describe blood pressure. Then with different Bayesian models estimate the parameters for the distribution. We will also investigate how the parameters differ when dividing the data into different age groups. Higher blood pressure could correspond with higher age.
+
+Main modeling idea is to test with different Bayesian models how to get accurate estimates of the parameters that could describe blood pressure.
+
+
+
 # Description of the data
 
 # Description of the models

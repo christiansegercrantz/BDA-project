@@ -43,6 +43,8 @@ The dataset has more columns than we used, for example number of pregnancies, BM
 
 # Description of the models
 
+...
+
 # Priors
 
 # Stan code

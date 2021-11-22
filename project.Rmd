@@ -99,6 +99,10 @@ $\sigma \sim \text{Inv-}\chi^2(\tau)$.
 # 4. Priors
 
 
+We use weekly informative priors for parameters $$\mu$$ and $$\sigma$$. They are chosen based on the blood pressure data that we get from the data set. From The plotted data we get weekly  
+
+
+
 
 # Convergence diagnostics 
 

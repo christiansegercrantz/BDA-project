@@ -41,16 +41,6 @@ We used blood pressure data combined with age data from the [Diabetes Dataset fr
 
 The dataset has more columns than we used, for example number of pregnancies, BMI and diabetes classification. We only used the columns BloodPressure, describing the diastolic blood pressure, and Age, describing the age of the patient in years. The diastolic blood pressure is the pressure the heart applies on the walls of the arteries between the beats (@diastolic_pressure). The unit for the diastolic blood pressure is mmHg, and a normal value is usually below 80. Higher values might indicate hypertension, which increases with age in Western countries (@gurven_blackwell_rodriguez_stieglitz_kaplan_2012).
 
-# 3. Description of the models
-
-
-# Convergence diagnostics 
-
-
-
-
-
-# Predictive performance assessment (if applicable)
 
 ```{r, warning=FALSE, echo=FALSE}
 ggplot(data, aes(x=BloodPressure)) +
@@ -77,7 +67,7 @@ knitr::kable(head(data),
 ggplot(data, aes(x=BloodPressure)) +
   geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="white") +
   geom_density(alpha=.2, fill="#FF6666") +
-  geom_vline(aes(xintercept=mean(BloodPressure)), color="#00BFC4", linetype="dashed", size=1)
+  geom_vline(aes(xintercept=mean(BloodPressure)), color="#FF6666", linetype="dashed", size=1)
 ```
 
 ```{r, fig.cap="Histograms with density approximations and mean lines for both age groups."}

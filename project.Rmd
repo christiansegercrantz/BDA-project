@@ -11,6 +11,7 @@ output:
     toc_depth: '2'
     df_print: paged
 urlcolor: blue
+bibliography: references.bib 
 ---
 
 ```{r steup,include=FALSE, echo=FALSE}
@@ -23,9 +24,13 @@ knitr::opts_chunk$set(warning=FALSE)
 data <- read.csv(file = 'diabetes.csv')
 ```
 
-# 1. Introduction
-- jswodoj
+# Introduction
+
 # Description of the data
+
+We used blood pressure data combined with age data from the [Diabetes Dataset from Kaggle](https://www.kaggle.com/mathchi/diabetes-data-set). According to the data description, the dataset is originally from the National Institute of Diabetes and Digestive and Kidney Diseases, and one data point corresponds to a female patient of Pima Indian heritage. All patients are at least 21 years old.
+
+The dataset has more columns than we used, for example number of pregnancies, BMI and diabetes classification. We only used the columns BloodPressure, describing the diastolic blood pressure, and Age, describing the age of the patient in years. The diastolic blood pressure is the pressure the heart applies on the walls of the arteries between the beats (@diastolic_pressure). The unit for the diastolic blood pressure is mmHg, and a normal value is usually below 80. Higher values might indicate hypertension, which increases with age in Western countries (@gurven_blackwell_rodriguez_stieglitz_kaplan_2012).
 
 # Description of the models
 
@@ -312,3 +317,5 @@ loo_compare(loo_nonhiera_old, loo_hiera_old)
 print("The model for the young:")
 loo_compare(loo_nonhiera_young, loo_hiera_young)
 ```
+
+# References

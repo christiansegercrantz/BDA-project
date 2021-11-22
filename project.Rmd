@@ -63,11 +63,12 @@ data <- data %>%
   ) %>% head(-1)
 #data
 ```
+
 ```{r, warning=FALSE, echo=FALSE}
 ggplot(data, aes(x=BloodPressure)) +
   geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="white") +
   geom_density(alpha=.2, fill="#FF6666") +
-  geom_vline(aes(xintercept=mean(BloodPressure)), color="blue", linetype="dashed", size=1)
+  geom_vline(aes(xintercept=mean(BloodPressure)), color="#00BFC4", linetype="dashed", size=1)
 ```
 
 ```{r}
@@ -80,6 +81,7 @@ ggplot(data, aes(x=BloodPressure, fill=AgeGroup)) +
   geom_vline(data = means, aes(xintercept=mean, color = AgeGroup), linetype="dashed", size=1) +
   geom_density(alpha=.2)
 ```
+
 ```{r}
 ggplot(data, aes(x=Age, y=BloodPressure, color=AgeGroup)) + geom_point() 
 ```
@@ -141,7 +143,7 @@ fit_nonhiera_old = sampling(nonhieramodel,
   chains = 4,             # number of Markov chains
   warmup = 1000,          # number of warmup iterations per chain
   iter = 2000,            # total number of iterations per chain
-  cores = 1,              # number of cores (could use one per chain)
+  cores = 4,              # number of cores (could use one per chain)
   refresh = 0             # no progress shown
   )
 ```
@@ -176,7 +178,7 @@ fit_nonhiera_young = sampling(nonhieramodel,
   chains = 4,             # number of Markov chains
   warmup = 1000,          # number of warmup iterations per chain
   iter = 2000,            # total number of iterations per chain
-  cores = 1,              # number of cores (could use one per chain)
+  cores = 4,              # number of cores (could use one per chain)
   refresh = 0             # no progress shown
   )
 ```
@@ -253,7 +255,7 @@ fit_hiera_old = sampling(hieramodel,
   chains = 4,             # number of Markov chains
   warmup = 1000,          # number of warmup iterations per chain
   iter = 2000,            # total number of iterations per chain
-  cores = 1,              # number of cores (could use one per chain)
+  cores = 4,              # number of cores (could use one per chain)
   refresh = 0             # no progress shown
   )
 ```
@@ -264,7 +266,7 @@ fit_hiera_young = sampling(hieramodel,
   chains = 4,             # number of Markov chains
   warmup = 1000,          # number of warmup iterations per chain
   iter = 2000,            # total number of iterations per chain
-  cores = 1,              # number of cores (could use one per chain)
+  cores = 4,              # number of cores (could use one per chain)
   refresh = 0             # no progress shown
   )
 ```
@@ -316,6 +318,118 @@ print("The model for the old:")
 loo_compare(loo_nonhiera_old, loo_hiera_old)
 print("The model for the young:")
 loo_compare(loo_nonhiera_young, loo_hiera_young)
+```
+
+
+```{r}
+extract_hiera_old <- data.frame(extract(fit_hiera_old))
+extract_nonhiera_old <- data.frame(extract(fit_nonhiera_old))
+extract_hiera_young <- data.frame(extract(fit_hiera_young))
+extract_nonhiera_young <- data.frame(extract(fit_nonhiera_young))
+```
+
+```{r}
+ggplot(extract_nonhiera_old, aes(x=ypred)) + ggtitle("Hierarical posterior predictive vs original data for the old age group") +
+  geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#F8766D", alpha=0.15)  + 
+  geom_histogram(data= data_old, aes(x=BloodPressure,y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#00BFC4", alpha=0.15) +
+  geom_density(aes(colour="Sim"),alpha=.2, fill="#FF6666") +
+  geom_density(data=data_old, aes(x=BloodPressure, colour="Orig"),alpha=.2, fill="#0000FF") +
+  geom_vline(aes(xintercept=mean(ypred)), colour="#F8766D", linetype="dashed", size=1) +
+  geom_vline(data=data_old, aes(xintercept=mean(BloodPressure), color="Orig"), color="#00BFC4", linetype="dashed", size=1) +
+  labs(x="Data", y ="Density", colour = "legend") +
+  scale_colour_manual(name = 'Denisty', values=c('Sim'='red','Orig'='blue'), labels = c('Predictive posterior','Original data'))
+```
+
+```{r}
+ggplot(extract_hiera_old, aes(x=ypred)) + ggtitle("Hierarical posterior predictive vs original data for the old age group") +
+  geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#F8766D", alpha=0.15)  + 
+  geom_histogram(data= data_old, aes(x=BloodPressure,y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#00BFC4", alpha=0.15) +
+  geom_density(aes(colour="Sim"),alpha=.2, fill="#FF6666") +
+  geom_density(data=data_old, aes(x=BloodPressure, colour="Orig"),alpha=.2, fill="#0000FF") +
+  geom_vline(aes(xintercept=mean(ypred)), colour="#F8766D", linetype="dashed", size=1) +
+  geom_vline(data=data_old, aes(xintercept=mean(BloodPressure), color="Orig"), color="#00BFC4", linetype="dashed", size=1) +
+  labs(x="Data", y ="Density", colour = "legend") +
+  scale_colour_manual(name = 'Denisty', values=c('Sim'='red','Orig'='blue'), labels = c('Predictive posterior','Original data'))
+```
+
+```{r}
+ggplot(extract_hiera_old, aes(x=ypred)) + ggtitle("Posterior predictive distributions of the hierarcical versus non-hierarcical data for the old age group") +
+  geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#F8766D", alpha=0.15)  + 
+  geom_histogram(data= extract_nonhiera_old, aes(x=ypred,y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#00BFC4", alpha=0.15) +
+  geom_density(aes(colour="Sim"),alpha=.2, fill="#FF6666") +
+  geom_density(data=extract_nonhiera_old, aes(x=ypred, colour="Orig"),alpha=.2, fill="#0000FF") +
+  geom_vline(aes(xintercept=mean(ypred)), colour="#F8766D", linetype="dashed", size=1) +
+  geom_vline(data=extract_nonhiera_old, aes(xintercept=mean(ypred), color="Orig"), color="#00BFC4", linetype="dashed", size=1) +
+  labs(x="Data", y ="Density", colour = "legend") +
+  scale_colour_manual(name = 'Denisty', values=c('Sim'='red','Orig'='blue'), labels = c('Hierarical model','Nonhierarcical model'))
+```
+
+```{r}
+ggplot(extract_hiera_old, aes(x=ypred)) + ggtitle("Posterior predictive distributions of the non hierarcical models for the old versus the young age group") +
+  geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#F8766D", alpha=0.15)  + 
+  geom_histogram(data= extract_hiera_young, aes(x=ypred,y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#00BFC4", alpha=0.15) +
+  geom_density(aes(colour="Sim"),alpha=.2, fill="#FF6666") +
+  geom_density(data=extract_hiera_young, aes(x=ypred, colour="Orig"),alpha=.2, fill="#0000FF") +
+  geom_vline(aes(xintercept=mean(ypred)), colour="#F8766D", linetype="dashed", size=1) +
+  geom_vline(data=extract_hiera_young, aes(xintercept=mean(ypred), color="Orig"), color="#00BFC4", linetype="dashed", size=1) +
+  labs(x="Data", y ="Density", colour = "legend") +
+  scale_colour_manual(name = 'Denisty', values=c('Sim'='red','Orig'='blue'), labels = c('Old age group','Young age group'))
+```
+
+```{r}
+mean_mu_prior_sensitivity = c(0, 50, 100, 1000)
+mean_sigma_prior_old_sensitivity = c(1, 10, 100, 1000)
+var_prior_old_sensitivity = c(1, 10, 100, 1000)
+fit_sensitivity = c()
+for (i in 1:length(mean_mu_prior_sensitivity)){
+  for (j in 1:length(mean_sigma_prior_old_sensitivity)){
+  data_sensitivity <- list(
+    y = data_old$BloodPressure,
+    N = length(data_old$BloodPressure),
+    mean_mu_prior = mean_mu_prior_sensitivity[i],
+    mean_sigma_prior = mean_sigma_prior_old_sensitivity[j],
+    var_prior = var_prior_old_sensitivity[j]
+  )
+  
+  fit_sensitivity = c(fit_sensitivity,sampling(nonhieramodel,
+    data = data_nonhiera_old,            # named list of data
+    chains = 4,             # number of Markov chains
+    warmup = 1000,          # number of warmup iterations per chain
+    iter = 2000,            # total number of iterations per chain
+    cores = 4,              # number of cores (could use one per chain)
+    refresh = 0             # no progress shown
+    ))
+  }
+}
+```
+
+```{r}
+gg_color_hue <- function(n) {
+  hues = seq(15, 375, length = n + 1)
+  hcl(h = hues, l = 65, c = 100)[1:n]
+}
+colors = gg_color_hue(16)
+```
+
+```{r}
+  ggplot() +
+  geom_point(data=data.frame(extract(fit_sensitivity[[1]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[1])) +
+  geom_point(data=data.frame(extract(fit_sensitivity[[2]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[2]))+
+  geom_point(data=data.frame(extract(fit_sensitivity[[3]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[3]))+
+  geom_point(data=data.frame(extract(fit_sensitivity[[4]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[4]))+
+  geom_point(data=data.frame(extract(fit_sensitivity[[5]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[5]))+
+  geom_point(data=data.frame(extract(fit_sensitivity[[6]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[6]))+
+  geom_point(data=data.frame(extract(fit_sensitivity[[7]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[7]))+
+  geom_point(data=data.frame(extract(fit_sensitivity[[8]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[8]))+
+  geom_point(data=data.frame(extract(fit_sensitivity[[9]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[9]))+
+  geom_point(data=data.frame(extract(fit_sensitivity[[10]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[10]))+
+  geom_point(data=data.frame(extract(fit_sensitivity[[11]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[11]))+
+  geom_point(data=data.frame(extract(fit_sensitivity[[12]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[12]))+
+  geom_point(data=data.frame(extract(fit_sensitivity[[13]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[13]))+
+  geom_point(data=data.frame(extract(fit_sensitivity[[14]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[14]))+
+  geom_point(data=data.frame(extract(fit_sensitivity[[15]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[15]))+
+  geom_point(data=data.frame(extract(fit_sensitivity[[16]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[16])) +
+  theme(legend.position = "None")
 ```
 
 # References

@@ -23,8 +23,8 @@ knitr::opts_chunk$set(warning=FALSE)
 data <- read.csv(file = 'diabetes.csv')
 ```
 
-# Introduction
-
+# 1. Introduction
+- jswodoj
 # Description of the data
 
 # Description of the models

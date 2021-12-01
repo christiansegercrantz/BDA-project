@@ -1,6 +1,6 @@
 ---
 title: "BDA Project"
-date: "11/2021"
+date: "12/2021"
 author: "Arthur Aspelin, Jannica Savander, Christian Segercrantz"
 output:
   pdf_document:
@@ -19,6 +19,7 @@ rm(list = ls())
 library("rstan")
 library("dplyr")
 library("loo")
+library("ggplot2")
 options(digits = 3)
 knitr::opts_chunk$set(warning=FALSE)
 data <- read.csv(file = 'diabetes.csv')
@@ -32,8 +33,7 @@ Solving the problem, firstly, we want to estimate what type of distribution can 
 
 Main modeling idea is to test with different Bayesian models how to get accurate estimates of the parameters that could describe blood pressure.
 
-![Damage that can be caused from high blood pressure](blood_pressure.jpg){width=50%, height = 50%}
-
+![Damage that can be caused from high blood pressure](blood_pressure.jpg)
 
 # 2. Description of the data
 
@@ -81,6 +81,10 @@ ggplot(data, aes(x=BloodPressure, fill=AgeGroup)) +
   geom_density(alpha=.2)
 ```
 
+```{r, echo=FALSE}
+ggplot(data, aes(x=Age, y=BloodPressure, color=AgeGroup)) + geom_point() 
+```
+
 # 3. Description of the models
 
 We used two models, one hierarchical and one nonhierarchical, and ran each model two times (once per age group). Therefore we got four fits: hierarchical for the old group, nonhierarchical for the old group, hierarchical for the young group, and nonhierarchical for the young group. The data looks normally distributed (which is very natural in its biological context), so we base our models on the normal distribution.
@@ -107,34 +111,14 @@ $\sigma \sim \text{Inv-}\chi^2(\tau)$.
 
 # 4. Priors
 
-We use weekly informative priors for parameters $$\mu$$, $$\sigma$$ and $$Var$$. They are chosen based on the blood pressure data that we get from the data set. From the plotted data we choose priors that possibly could describe a normal distribution describing the blood pressure. $$\mu$$, $$\sigma$$ and $$Var$$ for the distribution of our two different age groups:
+We use weekly informative priors for parameters $\mu$, $\sigma$ and $Var$. They are chosen based on the blood pressure data that we get from the data set. From the plotted data we choose priors that possibly could describe a normal distribution describing the blood pressure. $\mu$, $\sigma$ and $Var$ for the distribution of our two different age groups:
 
--  For $$Age \leq 30: Prior\mu = 65,\:Prior\sigma=10,\: PriorVar=20$$. Our prior $$\mu$$ is slightly lower here than for the older age group. Other priors stay the same.
--  For $$Age > 30: Prior\mu = 75,\:Prior\sigma=10,\: PriorVar=20$$. Here the prior $$\mu$$ is higher but other priors stay the same.
+-  For $Age \leq 30: \mu_{prior} = 65,\:\sigma_{prior}=10,\: Var_{prior}=20$. Our prior $\mu$ is slightly lower here than for the older age group. Other priors stay the same.
+-  For $Age > 30: \mu_{prior} = 75,\:\sigma_{prior}=10,\: Var_{prior}=20$. Here the prior $\mu$ is higher, because it can be seen from the plot that the mean is higher, but other priors stay the same.
 
+# 5. Stan code
 
-
-
-# Convergence diagnostics 
-
-
-
-
-
-# Predictive performance assessment (if applicable)
-
-
-
-
-
-
-
-
-
-```{r, echo=FALSE}
-ggplot(data, aes(x=Age, y=BloodPressure, color=AgeGroup)) + geom_point() 
-```
-# Stan code
+## Nonhierarchical model 
 
 ```{stan, output.var = "nonhieramodel"}
 data {
@@ -169,63 +153,7 @@ generated quantities {
 
 ```
 
-```{r}
-data_old <- data %>%
-  filter(AgeGroup == "Old")
-
-mean_mu_prior_old = 75
-mean_sigma_prior_old = 10
-var_prior_old = 20
-data_nonhiera_old <- list(
-  y = data_old$BloodPressure,
-  N = length(data_old$BloodPressure),
-  mean_mu_prior = mean_mu_prior_old,
-  mean_sigma_prior = mean_sigma_prior_old,
-  var_prior = var_prior_old
-)
-```
-
-
-```{r}
-fit_nonhiera_old = sampling(nonhieramodel,
-  data = data_nonhiera_old,            # named list of data
-  chains = 4,             # number of Markov chains
-  warmup = 1000,          # number of warmup iterations per chain
-  iter = 2000,            # total number of iterations per chain
-  cores = 4,              # number of cores (could use one per chain)
-  refresh = 0             # no progress shown
-  )
-```
-
-
-```{r}
-data_young <- data %>%
-  filter(AgeGroup == "Young")
-
-mean_mu_prior_young = 65
-mean_sigma_prior_young = 10
-var_prior_young = 20
-data_nonhiera_young <- list(
-  y = data_young$BloodPressure,
-  N = length(data_young$BloodPressure),
-  mean_mu_prior = mean_mu_prior_young,
-  mean_sigma_prior = mean_sigma_prior_young,
-  var_prior = var_prior_young
-)
-```
-
-```{r}
-fit_nonhiera_young = sampling(nonhieramodel,
-  data = data_nonhiera_young,            # named list of data
-  chains = 4,             # number of Markov chains
-  warmup = 1000,          # number of warmup iterations per chain
-  iter = 2000,            # total number of iterations per chain
-  cores = 4,              # number of cores (could use one per chain)
-  refresh = 0             # no progress shown
-  )
-```
-
-
+## Hierarchical model
 
 ```{stan, output.var = "hieramodel"}
 data {
@@ -265,6 +193,72 @@ generated quantities {
 
 ```
 
+# 6. Running the Stan model
+
+## Nonhierarchical model
+
+### Old group
+
+```{r}
+data_old <- data %>%
+  filter(AgeGroup == "Old")
+
+mean_mu_prior_old = 75
+mean_sigma_prior_old = 10
+var_prior_old = 20
+data_nonhiera_old <- list(
+  y = data_old$BloodPressure,
+  N = length(data_old$BloodPressure),
+  mean_mu_prior = mean_mu_prior_old,
+  mean_sigma_prior = mean_sigma_prior_old,
+  var_prior = var_prior_old
+)
+```
+
+```{r}
+fit_nonhiera_old = sampling(nonhieramodel,
+  data = data_nonhiera_old,            # named list of data
+  chains = 4,             # number of Markov chains
+  warmup = 1000,          # number of warmup iterations per chain
+  iter = 2000,            # total number of iterations per chain
+  cores = 4,              # number of cores (could use one per chain)
+  refresh = 0             # no progress shown
+  )
+```
+
+### Young group
+
+```{r}
+data_young <- data %>%
+  filter(AgeGroup == "Young")
+
+mean_mu_prior_young = 65
+mean_sigma_prior_young = 10
+var_prior_young = 20
+data_nonhiera_young <- list(
+  y = data_young$BloodPressure,
+  N = length(data_young$BloodPressure),
+  mean_mu_prior = mean_mu_prior_young,
+  mean_sigma_prior = mean_sigma_prior_young,
+  var_prior = var_prior_young
+)
+```
+
+```{r}
+fit_nonhiera_young = sampling(nonhieramodel,
+  data = data_nonhiera_young,            # named list of data
+  chains = 4,             # number of Markov chains
+  warmup = 1000,          # number of warmup iterations per chain
+  iter = 2000,            # total number of iterations per chain
+  cores = 4,              # number of cores (could use one per chain)
+  refresh = 0             # no progress shown
+  )
+```
+
+## Hierarchical model
+
+### Old group
+
 ```{r}
 mean_mu_prior = 70
 mean_sigma_prior = 10
@@ -274,13 +268,6 @@ data_hiera_old <- list(
   N = length(data_old$BloodPressure),
   mean_mu_prior = mean_mu_prior,
   mean_sigma_prior = mean_sigma_prior_old,
-  var_prior = var_prior
-)
-data_hiera_young <- list(
-  y = data_young$BloodPressure,
-  N = length(data_young$BloodPressure),
-  mean_mu_prior = mean_mu_prior,
-  mean_sigma_prior = mean_sigma_prior,
   var_prior = var_prior
 )
 ```
@@ -296,6 +283,21 @@ fit_hiera_old = sampling(hieramodel,
   )
 ```
 
+### Young group
+
+```{r}
+mean_mu_prior = 70
+mean_sigma_prior = 10
+var_prior = 20
+data_hiera_young <- list(
+  y = data_young$BloodPressure,
+  N = length(data_young$BloodPressure),
+  mean_mu_prior = mean_mu_prior,
+  mean_sigma_prior = mean_sigma_prior,
+  var_prior = var_prior
+)
+```
+
 ```{r}
 fit_hiera_young = sampling(hieramodel,
   data = data_hiera_young,            # named list of data
@@ -307,9 +309,7 @@ fit_hiera_young = sampling(hieramodel,
   )
 ```
 
-
-
-# Posterior predictive checks
+# 7. Convergence diagnostics
 
 ```{r}
 knitr::kable(head(monitor(fit_nonhiera_old, print = FALSE),3),
@@ -352,7 +352,64 @@ extract_nonhiera_old <- data.frame(extract(fit_nonhiera_old))
 ggplot(data = extract_nonhiera_old ,aes(x=mu, y=sigma))+geom_point()
 ```
 
-# Model comparison with LOO-CV
+# 8. Posterior predictive checks
+
+```{r}
+extract_hiera_old <- data.frame(extract(fit_hiera_old))
+extract_nonhiera_old <- data.frame(extract(fit_nonhiera_old))
+extract_hiera_young <- data.frame(extract(fit_hiera_young))
+extract_nonhiera_young <- data.frame(extract(fit_nonhiera_young))
+```
+
+```{r, echo=FALSE, fig.pos='h', fig.cap="Hierarical posterior predictive vs original data for the old age group."}
+ggplot(extract_nonhiera_old, aes(x=ypred)) +
+  geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#F8766D", alpha=0.15)  + 
+  geom_histogram(data= data_old, aes(x=BloodPressure,y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#00BFC4", alpha=0.15) +
+  geom_density(aes(colour="Sim"),alpha=.2, fill="#FF6666") +
+  geom_density(data=data_old, aes(x=BloodPressure, colour="Orig"),alpha=.2, fill="#0000FF") +
+  geom_vline(aes(xintercept=mean(ypred)), colour="#F8766D", linetype="dashed", size=1) +
+  geom_vline(data=data_old, aes(xintercept=mean(BloodPressure), color="Orig"), color="#00BFC4", linetype="dashed", size=1) +
+  labs(x="Data", y ="Density", colour = "legend") +
+  scale_colour_manual(name = 'Denisty', values=c('Sim'='red','Orig'='blue'), labels = c('Predictive posterior','Original data'))
+```
+
+```{r, echo=FALSE, fig.pos='h', fig.cap="Hierarical posterior predictive vs original data for the old age group."}
+ggplot(extract_hiera_old, aes(x=ypred)) +
+  geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#F8766D", alpha=0.15)  + 
+  geom_histogram(data= data_old, aes(x=BloodPressure,y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#00BFC4", alpha=0.15) +
+  geom_density(aes(colour="Sim"),alpha=.2, fill="#FF6666") +
+  geom_density(data=data_old, aes(x=BloodPressure, colour="Orig"),alpha=.2, fill="#0000FF") +
+  geom_vline(aes(xintercept=mean(ypred)), colour="#F8766D", linetype="dashed", size=1) +
+  geom_vline(data=data_old, aes(xintercept=mean(BloodPressure), color="Orig"), color="#00BFC4", linetype="dashed", size=1) +
+  labs(x="Data", y ="Density", colour = "legend") +
+  scale_colour_manual(name = 'Denisty', values=c('Sim'='red','Orig'='blue'), labels = c('Predictive posterior','Original data'))
+```
+
+```{r, echo=FALSE, fig.pos='h', fig.cap="Posterior predictive distributions of the hierarcical versus non-hierarcical data for the old age group."}
+ggplot(extract_hiera_old, aes(x=ypred)) +
+  geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#F8766D", alpha=0.15)  + 
+  geom_histogram(data= extract_nonhiera_old, aes(x=ypred,y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#00BFC4", alpha=0.15) +
+  geom_density(aes(colour="Sim"),alpha=.2, fill="#FF6666") +
+  geom_density(data=extract_nonhiera_old, aes(x=ypred, colour="Orig"),alpha=.2, fill="#0000FF") +
+  geom_vline(aes(xintercept=mean(ypred)), colour="#F8766D", linetype="dashed", size=1) +
+  geom_vline(data=extract_nonhiera_old, aes(xintercept=mean(ypred), color="Orig"), color="#00BFC4", linetype="dashed", size=1) +
+  labs(x="Data", y ="Density", colour = "legend") +
+  scale_colour_manual(name = 'Denisty', values=c('Sim'='red','Orig'='blue'), labels = c('Hierarical model','Nonhierarcical model'))
+```
+
+```{r, echo=FALSE, fig.pos='h', fig.cap="Posterior predictive distributions of the non hierarcical models for the old versus the young age group"}
+ggplot(extract_hiera_old, aes(x=ypred)) +
+  geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#F8766D", alpha=0.15)  + 
+  geom_histogram(data= extract_hiera_young, aes(x=ypred,y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#00BFC4", alpha=0.15) +
+  geom_density(aes(colour="Sim"),alpha=.2, fill="#FF6666") +
+  geom_density(data=extract_hiera_young, aes(x=ypred, colour="Orig"),alpha=.2, fill="#0000FF") +
+  geom_vline(aes(xintercept=mean(ypred)), colour="#F8766D", linetype="dashed", size=1) +
+  geom_vline(data=extract_hiera_young, aes(xintercept=mean(ypred), color="Orig"), color="#00BFC4", linetype="dashed", size=1) +
+  labs(x="Data", y ="Density", colour = "legend") +
+  scale_colour_manual(name = 'Denisty', values=c('Sim'='red','Orig'='blue'), labels = c('Old age group','Young age group'))
+```
+
+# 9. Model comparison with LOO-CV
 
 ```{r}
 loo_nonhiera_old <- loo(fit_nonhiera_old, pars="log_lik")
@@ -381,63 +438,11 @@ print("The model for the young:")
 loo_compare(loo_nonhiera_young, loo_hiera_young)
 ```
 
+# 10. Predictive performance assesment
 
-```{r}
-extract_hiera_old <- data.frame(extract(fit_hiera_old))
-extract_nonhiera_old <- data.frame(extract(fit_nonhiera_old))
-extract_hiera_young <- data.frame(extract(fit_hiera_young))
-extract_nonhiera_young <- data.frame(extract(fit_nonhiera_young))
-```
+We do not use our model to make predictions. Instead, we try to describe the blood pressure among the population and the effect of higher age on blood pressure. The predictive performance is not relevant as we do not predict anything with the current model.
 
-```{r, echo=FALSE, fig.cap="Hierarical posterior predictive vs original data for the old age group."}
-ggplot(extract_nonhiera_old, aes(x=ypred)) +
-  geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#F8766D", alpha=0.15)  + 
-  geom_histogram(data= data_old, aes(x=BloodPressure,y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#00BFC4", alpha=0.15) +
-  geom_density(aes(colour="Sim"),alpha=.2, fill="#FF6666") +
-  geom_density(data=data_old, aes(x=BloodPressure, colour="Orig"),alpha=.2, fill="#0000FF") +
-  geom_vline(aes(xintercept=mean(ypred)), colour="#F8766D", linetype="dashed", size=1) +
-  geom_vline(data=data_old, aes(xintercept=mean(BloodPressure), color="Orig"), color="#00BFC4", linetype="dashed", size=1) +
-  labs(x="Data", y ="Density", colour = "legend") +
-  scale_colour_manual(name = 'Denisty', values=c('Sim'='red','Orig'='blue'), labels = c('Predictive posterior','Original data'))
-```
-
-```{r, echo=FALSE, fig.cap="Hierarical posterior predictive vs original data for the old age group."}
-ggplot(extract_hiera_old, aes(x=ypred)) +
-  geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#F8766D", alpha=0.15)  + 
-  geom_histogram(data= data_old, aes(x=BloodPressure,y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#00BFC4", alpha=0.15) +
-  geom_density(aes(colour="Sim"),alpha=.2, fill="#FF6666") +
-  geom_density(data=data_old, aes(x=BloodPressure, colour="Orig"),alpha=.2, fill="#0000FF") +
-  geom_vline(aes(xintercept=mean(ypred)), colour="#F8766D", linetype="dashed", size=1) +
-  geom_vline(data=data_old, aes(xintercept=mean(BloodPressure), color="Orig"), color="#00BFC4", linetype="dashed", size=1) +
-  labs(x="Data", y ="Density", colour = "legend") +
-  scale_colour_manual(name = 'Denisty', values=c('Sim'='red','Orig'='blue'), labels = c('Predictive posterior','Original data'))
-```
-
-```{r, echo=FALSE, fig.cap="Posterior predictive distributions of the hierarcical versus non-hierarcical data for the old age group."}
-ggplot(extract_hiera_old, aes(x=ypred)) +
-  geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#F8766D", alpha=0.15)  + 
-  geom_histogram(data= extract_nonhiera_old, aes(x=ypred,y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#00BFC4", alpha=0.15) +
-  geom_density(aes(colour="Sim"),alpha=.2, fill="#FF6666") +
-  geom_density(data=extract_nonhiera_old, aes(x=ypred, colour="Orig"),alpha=.2, fill="#0000FF") +
-  geom_vline(aes(xintercept=mean(ypred)), colour="#F8766D", linetype="dashed", size=1) +
-  geom_vline(data=extract_nonhiera_old, aes(xintercept=mean(ypred), color="Orig"), color="#00BFC4", linetype="dashed", size=1) +
-  labs(x="Data", y ="Density", colour = "legend") +
-  scale_colour_manual(name = 'Denisty', values=c('Sim'='red','Orig'='blue'), labels = c('Hierarical model','Nonhierarcical model'))
-```
-
-```{r, echo=FALSE, fig.cap="Posterior predictive distributions of the non hierarcical models for the old versus the young age group"}
-ggplot(extract_hiera_old, aes(x=ypred)) +
-  geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#F8766D", alpha=0.15)  + 
-  geom_histogram(data= extract_hiera_young, aes(x=ypred,y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#00BFC4", alpha=0.15) +
-  geom_density(aes(colour="Sim"),alpha=.2, fill="#FF6666") +
-  geom_density(data=extract_hiera_young, aes(x=ypred, colour="Orig"),alpha=.2, fill="#0000FF") +
-  geom_vline(aes(xintercept=mean(ypred)), colour="#F8766D", linetype="dashed", size=1) +
-  geom_vline(data=extract_hiera_young, aes(xintercept=mean(ypred), color="Orig"), color="#00BFC4", linetype="dashed", size=1) +
-  labs(x="Data", y ="Density", colour = "legend") +
-  scale_colour_manual(name = 'Denisty', values=c('Sim'='red','Orig'='blue'), labels = c('Old age group','Young age group'))
-```
-
-# Sensitivity analysis
+# 11. Sensitivity analysis
 
 ```{r}
 mean_mu_prior_sensitivity = c(0, 50, 100, 1000)
@@ -495,12 +500,10 @@ colors = gg_color_hue(16)
   theme(legend.position = "None")
 ```
 
+# 12. Discussion
 
+# 13. Conclusion 
 
-# Discussion
-
-# Conclusion 
-
-# Self-reflection
+# 14. Self-reflection
 
 # References

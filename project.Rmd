@@ -3,18 +3,18 @@ title: "BDA Project"
 date: "12/2021"
 author: "Arthur Aspelin, Jannica Savander, Christian Segercrantz"
 output:
-  pdf_document:
-    toc: yes
-    toc_depth: 2
-    extra_dependencies: ["float"]
-    includes:  
-      in_header: preamble-latex.tex
   html_document:
     toc: yes
     toc_depth: '2'
     df_print: paged
+  pdf_document:
+    toc: yes
+    toc_depth: 2
+    extra_dependencies: ["float"]
 urlcolor: blue
-bibliography: references.bib 
+bibliography: references.bib
+header-includes:
+  \usepackage{placeins}
 ---
 
 ```{r steup,include=FALSE, echo=FALSE}
@@ -44,13 +44,6 @@ Main modeling idea is to test with different Bayesian models how to get accurate
 We used blood pressure data combined with age data from the [Diabetes Dataset from Kaggle](https://www.kaggle.com/mathchi/diabetes-data-set). According to the data description, the dataset is originally from the National Institute of Diabetes and Digestive and Kidney Diseases, and one data point corresponds to a female patient of Pima Indian heritage. All patients are at least 21 years old.
 
 The dataset has more columns than we used, for example number of pregnancies, BMI and diabetes classification. We only used the columns BloodPressure, describing the diastolic blood pressure, and Age, describing the age of the patient in years. The diastolic blood pressure is the pressure the heart applies on the walls of the arteries between the beats (@diastolic_pressure). The unit for the diastolic blood pressure is mmHg, and a normal value is usually below 80. Higher values might indicate hypertension, which increases with age in Western countries (@gurven_blackwell_rodriguez_stieglitz_kaplan_2012).
-
-```{r, warning=FALSE, echo=FALSE}
-ggplot(data, aes(x=BloodPressure)) +
-  geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="white") +
-  geom_density(alpha=.2, fill="#FF6666") +
-  geom_vline(aes(xintercept=mean(BloodPressure)), color="#00BFC4", linetype="dashed", size=1)
-```
 
 We separated the data in two parts based on age group. Using the cutoff value 30 for age, we got an younger and an older group with 394 and 338 patients respectively. The groups will from here be referred to as "young group" and "old group". The code and the plot for the groups separately can be seen below.
 
@@ -84,7 +77,7 @@ ggplot(data, aes(x=BloodPressure, fill=AgeGroup)) +
   geom_density(alpha=.2)
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.cap="The bloodpressure and age scatterplotted for each data point."}
 ggplot(data, aes(x=Age, y=BloodPressure, color=AgeGroup)) + geom_point() 
 ```
 
@@ -135,8 +128,8 @@ data {
 }
 
 parameters {
-  real mu;                         // The parameter mu describing the man
-  real<lower=0> sigma;             // The parameter sigma describing the variance
+  real mu;                         //The parameter mu describing the man
+  real<lower=0> sigma;             //The parameter sigma describing the variance
 }
 
 model {
@@ -165,24 +158,27 @@ generated quantities {
 ```{stan, output.var = "hieramodel"}
 data {
   int<lower=0> N;                  //Amount of data points
-  vector[N] y;                     //
-  real mean_mu_prior;              //
-  real<lower=0> mean_sigma_prior;  //
-  real<lower=0> var_prior;         //
+  vector[N] y;                     //Data points
+  real mean_mu_prior;              //Expected value of the mean prior
+  real<lower=0> mean_sigma_prior;  //Variance of the mean prior
+  real<lower=0> var_prior;         //Variance of the variance prior
 }
 
 parameters {
-  real mu;
-  real<lower=0> sigma;
-  real mu_hypo;
-  real<lower=0> tau;
+  real mu;                         //The parameter mu describing the man 
+  real<lower=0> sigma;             //The parameter sigma describing the variance
+  real mu_hypo;                    //The hyperparameter describing the mean of the hyperprior
+  real<lower=0> tau;               //The hyperparameter describing the variance of the hyperpriors
 }
 
 model {
-  //hyperpriors
+  //Hyperpriors
+  //The hyperprior for the mean, normally distributed
   mu_hypo ~ normal(mean_mu_prior, mean_sigma_prior);
+  //The hyperprior for the variance, inverse chi-square distributed
   tau ~ inv_chi_square(var_prior);
-  //prior
+  //Priors:
+  // The prior for the mean, normally distributed
   mu ~ normal(mu_hypo, tau);
   sigma ~ inv_chi_square(var_prior);
  //likelihoods
@@ -201,6 +197,8 @@ generated quantities {
 ```
 
 # 6. Running the Stan model
+
+\FloatBarrier
 
 We will need to run both of the models twice to get a model both for the young group and the old group. Therefore, we repeat almost the same process four times. The code is not included for all models for this reason. All models are ran with 4 chains and 2000 chains, of which one half (1000 iterations) are warmup.
 
@@ -321,6 +319,7 @@ fit_hiera_young = sampling(hieramodel,
   refresh = 0             # no progress shown
   )
 ```
+\FloatBarrier
 
 # 7. Convergence diagnostics
 
@@ -394,7 +393,7 @@ knitr::kable(diag_nonhiera_old,
 traceplot(fit_hiera_young, inc_warmup = FALSE, nrow = 3, pars=c("mu", "sigma", "ypred"))
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.cap="The paramters mu and sigma of the posterior scatter ploted."}
 extract_nonhiera_old <- data.frame(extract(fit_nonhiera_old))
 ggplot(data = extract_nonhiera_old ,aes(x=mu, y=sigma))+geom_point()
 ```
@@ -498,7 +497,7 @@ We do not use our model to make predictions. Instead, we try to describe the blo
 
 To perform sensitivity analysis, we try a number of different priors to see if they change the posterior in a notable way. We try different combinations of the prior parameters, with $\mu$ values  0, 50, 100 and 1000, and $\sigma$ and Var values 1, 10, 100 and 1000. When we then plot the chains we can see that there are no large differences between how the posteriors behave, regardless of the priors. This indicates that the likelihood as a stronger influence than the prior, resulting in that the values of the prior parameters does not change the posterior.
 
-```{r}
+
 mean_mu_prior_sensitivity = c(0, 50, 100, 1000)
 mean_sigma_prior_sensitivity = c(1, 10, 100, 1000)
 var_prior_old_sensitivity = c(1, 10, 100, 1000)
@@ -523,17 +522,17 @@ for (i in 1:length(mean_mu_prior_sensitivity)){
     ))
   }
 }
-```
 
-```{r, echo=FALSE}
+
+{r, echo=FALSE}
 gg_color_hue <- function(n) {
   hues = seq(15, 375, length = n + 1)
   hcl(h = hues, l = 65, c = 100)[1:n]
 }
 colors = gg_color_hue(16)
-```
 
-```{r, echo=FALSE, fig.cap="The complete chains, including warmup, of the sixteen combinations of prior values ploted."}
+
+{r, echo=FALSE, fig.cap="The complete chains, including warmup, of the sixteen combinations of prior values ploted."}
   ggplot() +
   geom_point(data=data.frame(extract(fit_sensitivity[[1]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[1])) +
   geom_point(data=data.frame(extract(fit_sensitivity[[2]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[2]))+
@@ -552,7 +551,7 @@ colors = gg_color_hue(16)
   geom_point(data=data.frame(extract(fit_sensitivity[[15]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[15]))+
   geom_point(data=data.frame(extract(fit_sensitivity[[16]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[16])) +
   theme(legend.position = "None")
-```
+
 
 # 12. Discussion
 

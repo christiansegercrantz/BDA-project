@@ -33,7 +33,7 @@ The motivation for this project is to estimate the parameters for blood pressure
 
 Solving the problem, firstly, we want to estimate what type of distribution can describe blood pressure. Then with different Bayesian models estimate the parameters for the distribution. We will also investigate how the parameters differ when dividing the data into different age groups. Higher blood pressure could correspond with higher age.
 
-Main modeling idea is to test with different Bayesian models how to get accurate estimates of the parameters that could describe blood pressure.
+Main modeling idea is to test with different Bayesian models how to get accurate estimates of the parameters that could describe blood pressure. This answers the research question of whether older and younger people have different models describing their blood pressure, and therefore have different blood pressures.
 
 ![Damage that can be caused from high blood pressure](blood_pressure.jpg)
 
@@ -42,7 +42,6 @@ Main modeling idea is to test with different Bayesian models how to get accurate
 We used blood pressure data combined with age data from the [Diabetes Dataset from Kaggle](https://www.kaggle.com/mathchi/diabetes-data-set). According to the data description, the dataset is originally from the National Institute of Diabetes and Digestive and Kidney Diseases, and one data point corresponds to a female patient of Pima Indian heritage. All patients are at least 21 years old.
 
 The dataset has more columns than we used, for example number of pregnancies, BMI and diabetes classification. We only used the columns BloodPressure, describing the diastolic blood pressure, and Age, describing the age of the patient in years. The diastolic blood pressure is the pressure the heart applies on the walls of the arteries between the beats (@diastolic_pressure). The unit for the diastolic blood pressure is mmHg, and a normal value is usually below 80. Higher values might indicate hypertension, which increases with age in Western countries (@gurven_blackwell_rodriguez_stieglitz_kaplan_2012).
-
 
 ```{r, warning=FALSE, echo=FALSE}
 ggplot(data, aes(x=BloodPressure)) +
@@ -119,6 +118,8 @@ We use weekly informative priors for parameters $\mu$, $\sigma$ and $Var$. They 
 -  For $Age > 30: \mu_{prior} = 75,\:\sigma_{prior}=10,\: Var_{prior}=20$. Here the prior $\mu$ is higher, because it can be seen from the plot that the mean is higher, but other priors stay the same.
 
 # 5. Stan code
+
+Below the Stan code for the two models (nonhierarchical and hierarchical) can be seen. 
 
 ## Nonhierarchical model 
 
@@ -199,7 +200,11 @@ generated quantities {
 
 # 6. Running the Stan model
 
+We will need to run both of the models twice to get a model both for the young group and the old group. Therefore, we repeat almost the same process four times. The code is not included for all models for this reason. All models are ran with 4 chains and 2000 chains, of which one half (1000 iterations) are warmup.
+
 ## Nonhierarchical model
+
+The nonhierarchical model uses $\mu_{old}=75$, $\mu_{young}=65$, $\sigma_{prior}=10$, $\text{Var}_{prior}=20$. The data used is the blood pressure data from the dataset for the age group respectively.
 
 ### Old group
 
@@ -261,6 +266,8 @@ fit_nonhiera_young = sampling(nonhieramodel,
 
 ## Hierarchical model
 
+The nonhierarchical model uses $\mu=70$ (same for both groups). All other parameters are the same as in the nonhierarchical model.
+
 ### Old group
 
 ```{r, echo=FALSE}
@@ -315,8 +322,7 @@ fit_hiera_young = sampling(hieramodel,
 
 # 7. Convergence diagnostics
 
-
-# Posterior predictive checks
+We compute the convergence diagnostics for all models. All models have a $\widehat R$ value of <1.05, indicating that the chains have mixed well. The effective sample sizes (ESS) are all over 100, and can be considered good. When plotting the chains we can also see that they are converging well, and there is no need to edit the model or the priors.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 current_monitor <- data.frame(monitor(fit_nonhiera_old, print = FALSE))
@@ -393,6 +399,8 @@ ggplot(data = extract_nonhiera_old ,aes(x=mu, y=sigma))+geom_point()
 
 # 8. Posterior predictive checks
 
+We compare the posterior distribution with the original distribution visually. We can see that the posterior distribution is similar to the original distribution in all cases, indicating that the model is working as it should.
+
 ```{r, echo=FALSE}
 extract_hiera_old <- data.frame(extract(fit_hiera_old))
 extract_nonhiera_old <- data.frame(extract(fit_nonhiera_old))
@@ -445,10 +453,12 @@ ggplot(extract_hiera_old, aes(x=ypred)) +
   geom_vline(aes(xintercept=mean(ypred)), colour="#F8766D", linetype="dashed", size=1) +
   geom_vline(data=extract_hiera_young, aes(xintercept=mean(ypred), color="Orig"), color="#00BFC4", linetype="dashed", size=1) +
   labs(x="Data", y ="Density", colour = "legend") +
-  scale_colour_manual(name = 'Denisty', values=c('Sim'='red','Orig'='blue'), labels = c('Old age group','Young age group'))
+  scale_colour_manual(name = 'Density', values=c('Sim'='red','Orig'='blue'), labels = c('Old age group','Young age group'))
 ```
 
 # 9. Model comparison with LOO-CV
+
+Next, we compare the nonhierarchical and the hierarchical model with LOO-CV. We can see that both models are equally good for the age groups.
 
 ```{r, echo=FALSE, fig.cap="The pareto k values using leave-one-out method for the nonhierarchical model for the old age group."}
 loo_nonhiera_old <- loo(fit_nonhiera_old, pars="log_lik")
@@ -484,18 +494,20 @@ We do not use our model to make predictions. Instead, we try to describe the blo
 
 # 11. Sensitivity analysis
 
+To perform sensitivity analysis, we try a number of different priors to see if they change the posterior in a notable way. We try different combinations of the prior parameters, with $\mu$ values  0, 50, 100 and 1000, and $\sigma$ and Var values 1, 10, 100 and 1000. When we then plot the chains we can see that there are no large differences between how the posteriors behave, regardless of the priors. This indicates that the likelihood as a stronger influence than the prior, resulting in that the values of the prior parameters does not change the posterior.
+
 ```{r}
 mean_mu_prior_sensitivity = c(0, 50, 100, 1000)
-mean_sigma_prior_old_sensitivity = c(1, 10, 100, 1000)
+mean_sigma_prior_sensitivity = c(1, 10, 100, 1000)
 var_prior_old_sensitivity = c(1, 10, 100, 1000)
 fit_sensitivity = c()
 for (i in 1:length(mean_mu_prior_sensitivity)){
-  for (j in 1:length(mean_sigma_prior_old_sensitivity)){
+  for (j in 1:length(mean_sigma_prior_sensitivity)){
   data_sensitivity <- list(
     y = data_old$BloodPressure,
     N = length(data_old$BloodPressure),
     mean_mu_prior = mean_mu_prior_sensitivity[i],
-    mean_sigma_prior = mean_sigma_prior_old_sensitivity[j],
+    mean_sigma_prior = mean_sigma_prior_sensitivity[j],
     var_prior = var_prior_old_sensitivity[j]
   )
   

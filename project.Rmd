@@ -20,6 +20,7 @@ library("rstan")
 library("dplyr")
 library("loo")
 library("ggplot2")
+library("tibble")
 options(digits = 3)
 knitr::opts_chunk$set(warning=FALSE)
 data <- read.csv(file = 'diabetes.csv')
@@ -318,6 +319,8 @@ fit_hiera_young = sampling(hieramodel,
 
 # 7. Convergence diagnostics
 
+We compute the convergence diagnostics for all models. All models have a $\widehat R$ value of <1.05, indicating that the chains have mixed well. The effective sample sizes (ESS) are all over 100, and can be considered good. When plotting the chains we can also see that they are converging well, and there is no need to edit the model or the priors.
+
 ```{r, warning=FALSE, message=FALSE}
 current_monitor <- monitor(fit_nonhiera_old, print = FALSE)
 diagnostics_names <- c(colnames(current_monitor)[1:10],"Bulk_ESS","Tail_ESS")
@@ -386,6 +389,8 @@ ggplot(data = extract_nonhiera_old ,aes(x=mu, y=sigma))+geom_point()
 
 # 8. Posterior predictive checks
 
+We compare the posterior distribution with the original distribution visually. We can see that the posterior distribution is similar to the original distribution in all cases, indicating that the model is working as it should.
+
 ```{r}
 extract_hiera_old <- data.frame(extract(fit_hiera_old))
 extract_nonhiera_old <- data.frame(extract(fit_nonhiera_old))
@@ -443,6 +448,8 @@ ggplot(extract_hiera_old, aes(x=ypred)) +
 
 # 9. Model comparison with LOO-CV
 
+Next, we compare the nonhierarchical and the hierarchical model with LOO-CV. We can see that both models are equally good for the age groups.
+
 ```{r}
 loo_nonhiera_old <- loo(fit_nonhiera_old, pars="log_lik")
 loo_nonhiera_old
@@ -476,18 +483,20 @@ We do not use our model to make predictions. Instead, we try to describe the blo
 
 # 11. Sensitivity analysis
 
+To perform sensitivity analysis, we try a number of different priors to see if they change the posterior in a notable way. We try different combinations of the prior parameters, with $\mu$ values  0, 50, 100 and 1000, and $\sigma$ and Var values 1, 10, 100 and 1000. When we then plot the chains we can see that there are no large differences between how the posteriors behave, regardless of the priors. This indicates that the likelihood as a stronger influence than the prior, resulting in that the values of the prior parameters does not change the posterior.
+
 ```{r}
 mean_mu_prior_sensitivity = c(0, 50, 100, 1000)
-mean_sigma_prior_old_sensitivity = c(1, 10, 100, 1000)
+mean_sigma_prior_sensitivity = c(1, 10, 100, 1000)
 var_prior_old_sensitivity = c(1, 10, 100, 1000)
 fit_sensitivity = c()
 for (i in 1:length(mean_mu_prior_sensitivity)){
-  for (j in 1:length(mean_sigma_prior_old_sensitivity)){
+  for (j in 1:length(mean_sigma_prior_sensitivity)){
   data_sensitivity <- list(
     y = data_old$BloodPressure,
     N = length(data_old$BloodPressure),
     mean_mu_prior = mean_mu_prior_sensitivity[i],
-    mean_sigma_prior = mean_sigma_prior_old_sensitivity[j],
+    mean_sigma_prior = mean_sigma_prior_sensitivity[j],
     var_prior = var_prior_old_sensitivity[j]
   )
   

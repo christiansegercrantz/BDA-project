@@ -31,7 +31,7 @@ The motivation for this project is to estimate the parameters for blood pressure
 
 Solving the problem, firstly, we want to estimate what type of distribution can describe blood pressure. Then with different Bayesian models estimate the parameters for the distribution. We will also investigate how the parameters differ when dividing the data into different age groups. Higher blood pressure could correspond with higher age.
 
-Main modeling idea is to test with different Bayesian models how to get accurate estimates of the parameters that could describe blood pressure.
+Main modeling idea is to test with different Bayesian models how to get accurate estimates of the parameters that could describe blood pressure. This answers the research question of whether older and younger people have different models describing their blood pressure, and therefore have different blood pressures.
 
 ![Damage that can be caused from high blood pressure](blood_pressure.jpg)
 
@@ -40,7 +40,6 @@ Main modeling idea is to test with different Bayesian models how to get accurate
 We used blood pressure data combined with age data from the [Diabetes Dataset from Kaggle](https://www.kaggle.com/mathchi/diabetes-data-set). According to the data description, the dataset is originally from the National Institute of Diabetes and Digestive and Kidney Diseases, and one data point corresponds to a female patient of Pima Indian heritage. All patients are at least 21 years old.
 
 The dataset has more columns than we used, for example number of pregnancies, BMI and diabetes classification. We only used the columns BloodPressure, describing the diastolic blood pressure, and Age, describing the age of the patient in years. The diastolic blood pressure is the pressure the heart applies on the walls of the arteries between the beats (@diastolic_pressure). The unit for the diastolic blood pressure is mmHg, and a normal value is usually below 80. Higher values might indicate hypertension, which increases with age in Western countries (@gurven_blackwell_rodriguez_stieglitz_kaplan_2012).
-
 
 ```{r, warning=FALSE, echo=FALSE}
 ggplot(data, aes(x=BloodPressure)) +
@@ -117,6 +116,8 @@ We use weekly informative priors for parameters $\mu$, $\sigma$ and $Var$. They 
 -  For $Age > 30: \mu_{prior} = 75,\:\sigma_{prior}=10,\: Var_{prior}=20$. Here the prior $\mu$ is higher, because it can be seen from the plot that the mean is higher, but other priors stay the same.
 
 # 5. Stan code
+
+Below the Stan code for the two models (nonhierarchical and hierarchical) can be seen. 
 
 ## Nonhierarchical model 
 
@@ -195,7 +196,11 @@ generated quantities {
 
 # 6. Running the Stan model
 
+We will need to run both of the models twice to get a model both for the young group and the old group. Therefore, we repeat almost the same process four times. The code is not included for all models for this reason. All models are ran with 4 chains and 2000 chains, of which one half (1000 iterations) are warmup.
+
 ## Nonhierarchical model
+
+The nonhierarchical model uses $\mu_{old}=75$, $\mu_{young}=65$, $\sigma_{prior}=10$, $\text{Var}_{prior}=20$. The data used is the blood pressure data from the dataset for the age group respectively.
 
 ### Old group
 
@@ -257,6 +262,8 @@ fit_nonhiera_young = sampling(nonhieramodel,
 
 ## Hierarchical model
 
+The nonhierarchical model uses $\mu=70$ (same for both groups). All other parameters are the same as in the nonhierarchical model.
+
 ### Old group
 
 ```{r}
@@ -310,9 +317,6 @@ fit_hiera_young = sampling(hieramodel,
 ```
 
 # 7. Convergence diagnostics
-
-
-# Posterior predictive checks
 
 ```{r, warning=FALSE, message=FALSE}
 current_monitor <- monitor(fit_nonhiera_old, print = FALSE)

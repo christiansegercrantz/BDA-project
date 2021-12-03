@@ -554,8 +554,15 @@ colors = gg_color_hue(16)
 
 # 12. Discussion
 
+One issue we get when performing this analysis are that the LOO-values we get from both models are identical. For the old group it is -1309.1 both for separate and hierarchical. For the young group it is -1544.6 for both models. This causes that we cannot decide on which model performs better with respect to the data and priors. 
+
+We conclude that this is caused by our data of blood pressure being very close to normally distributed, hence easy to estimate. For improvement we could try our models on other datasets that are not as normally distributed to see how they perform. 
+
 # 13. Conclusion 
+
+
 
 # 14. Self-reflection
 
 # References
+

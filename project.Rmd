@@ -7,6 +7,8 @@ output:
     toc: yes
     toc_depth: 2
     extra_dependencies: ["float"]
+    includes:  
+      in_header: preamble-latex.tex
   html_document:
     toc: yes
     toc_depth: '2'

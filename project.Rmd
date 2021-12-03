@@ -3,18 +3,18 @@ title: "BDA Project"
 date: "12/2021"
 author: "Arthur Aspelin, Jannica Savander, Christian Segercrantz"
 output:
-  html_document:
-    toc: yes
-    toc_depth: '2'
-    df_print: paged
   pdf_document:
     toc: yes
     toc_depth: 2
     extra_dependencies: ["float"]
+    includes: 
+      in_header: preamble-latex.tex
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
 urlcolor: blue
 bibliography: references.bib
-header-includes:
-  \usepackage{placeins}
 ---
 
 ```{r steup,include=FALSE, echo=FALSE}
@@ -72,7 +72,11 @@ means <- data %>%
   summarise(mean = mean(BloodPressure), n = n())
 
 ggplot(data, aes(x=BloodPressure, fill=AgeGroup)) +
-  geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", alpha = 0.4) +
+  geom_histogram(aes(y=..density..),
+                 binwidth = 5,
+                 colour="black",
+                 position = "identity",
+                 alpha = 0.4) +
   geom_vline(data = means, aes(xintercept=mean, color = AgeGroup), linetype="dashed", size=1) +
   geom_density(alpha=.2)
 ```
@@ -198,7 +202,6 @@ generated quantities {
 
 # 6. Running the Stan model
 
-\FloatBarrier
 
 We will need to run both of the models twice to get a model both for the young group and the old group. Therefore, we repeat almost the same process four times. The code is not included for all models for this reason. All models are ran with 4 chains and 2000 chains, of which one half (1000 iterations) are warmup.
 
@@ -207,8 +210,8 @@ We will need to run both of the models twice to get a model both for the young g
 The nonhierarchical model uses $\mu_{old}=75$, $\mu_{young}=65$, $\sigma_{prior}=10$, $\text{Var}_{prior}=20$. The data used is the blood pressure data from the dataset for the age group respectively.
 
 ### Old group
-
-```{r, echo=FALSE}
+In this section we can see the data used in the separate model for the old age group.
+```{r}
 data_old <- data %>%
   filter(AgeGroup == "Old")
 
@@ -224,7 +227,7 @@ data_nonhiera_old <- list(
 )
 ```
 
-```{r, echo=FALSE}
+```{r}
 fit_nonhiera_old = sampling(nonhieramodel,
   data = data_nonhiera_old,            # named list of data
   chains = 4,             # number of Markov chains
@@ -237,7 +240,8 @@ fit_nonhiera_old = sampling(nonhieramodel,
 
 ### Young group
 
-```{r, echo=FALSE}
+In this section we can see the data used in the separate model for the young age group.
+```{r}
 data_young <- data %>%
   filter(AgeGroup == "Young")
 
@@ -270,6 +274,7 @@ The nonhierarchical model uses $\mu=70$ (same for both groups). All other parame
 
 ### Old group
 
+In this section we can see the data used in the hierarchical model for the old age group.
 ```{r, echo=FALSE}
 mean_mu_prior = 70
 mean_sigma_prior = 10
@@ -296,7 +301,8 @@ fit_hiera_old = sampling(hieramodel,
 
 ### Young group
 
-```{r, echo=FALSE}
+In this section we can see the data used in the hierarchical model for the young age group.
+```{r}
 mean_mu_prior = 70
 mean_sigma_prior = 10
 var_prior = 20
@@ -319,7 +325,7 @@ fit_hiera_young = sampling(hieramodel,
   refresh = 0             # no progress shown
   )
 ```
-\FloatBarrier
+
 
 # 7. Convergence diagnostics
 
@@ -497,7 +503,7 @@ We do not use our model to make predictions. Instead, we try to describe the blo
 
 To perform sensitivity analysis, we try a number of different priors to see if they change the posterior in a notable way. We try different combinations of the prior parameters, with $\mu$ values  0, 50, 100 and 1000, and $\sigma$ and Var values 1, 10, 100 and 1000. When we then plot the chains we can see that there are no large differences between how the posteriors behave, regardless of the priors. This indicates that the likelihood as a stronger influence than the prior, resulting in that the values of the prior parameters does not change the posterior.
 
-
+```{r, echo=FALSE}
 mean_mu_prior_sensitivity = c(0, 50, 100, 1000)
 mean_sigma_prior_sensitivity = c(1, 10, 100, 1000)
 var_prior_old_sensitivity = c(1, 10, 100, 1000)
@@ -522,17 +528,17 @@ for (i in 1:length(mean_mu_prior_sensitivity)){
     ))
   }
 }
+```
 
-
-{r, echo=FALSE}
+```{r, echo=FALSE}
 gg_color_hue <- function(n) {
   hues = seq(15, 375, length = n + 1)
   hcl(h = hues, l = 65, c = 100)[1:n]
 }
 colors = gg_color_hue(16)
+```
 
-
-{r, echo=FALSE, fig.cap="The complete chains, including warmup, of the sixteen combinations of prior values ploted."}
+```{r, echo=FALSE, fig.cap="The complete chains, including warmup, of the sixteen combinations of prior values ploted."}
   ggplot() +
   geom_point(data=data.frame(extract(fit_sensitivity[[1]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[1])) +
   geom_point(data=data.frame(extract(fit_sensitivity[[2]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[2]))+
@@ -551,7 +557,7 @@ colors = gg_color_hue(16)
   geom_point(data=data.frame(extract(fit_sensitivity[[15]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[15]))+
   geom_point(data=data.frame(extract(fit_sensitivity[[16]],inc_warmup=TRUE)), aes(x=mu, sigma, color=colors[16])) +
   theme(legend.position = "None")
-
+```
 
 # 12. Discussion
 

@@ -566,5 +566,7 @@ We can conclude that blood pressure (at least with this dataset) is well describ
 
 # 14. Self-reflection
 
+While making this project, our group learned that we can get accurate estimates of parameters using Bayesian models. It is an efficient compliment to classical statistical inference methods. Our dataset was in the end quite easy to estimate and our models worked well. We also got a lot of training in smart ways to visualize data an producing coherent reports.
+
 # References
 

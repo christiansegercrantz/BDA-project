@@ -562,7 +562,7 @@ We conclude that this is caused by our data of blood pressure being very close t
 
 # 13. Conclusion 
 
-
+We can conclude that blood pressure (at least with this dataset) is well described by the normal distribution. The analysis indicates that the the mean shifts a little bit with age. This corresponds well to the initial plots of the data, and also with real-world knowledge: older people tend to have a higher blood pressure due to e.g. heart disease, while younger people have healthier circulatory systems.
 
 # 14. Self-reflection
 

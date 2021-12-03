@@ -443,7 +443,7 @@ ggplot(extract_hiera_old, aes(x=ypred)) +
   geom_vline(aes(xintercept=mean(ypred)), colour="#F8766D", linetype="dashed", size=1) +
   geom_vline(data=extract_hiera_young, aes(xintercept=mean(ypred), color="Orig"), color="#00BFC4", linetype="dashed", size=1) +
   labs(x="Data", y ="Density", colour = "legend") +
-  scale_colour_manual(name = 'Denisty', values=c('Sim'='red','Orig'='blue'), labels = c('Old age group','Young age group'))
+  scale_colour_manual(name = 'Density', values=c('Sim'='red','Orig'='blue'), labels = c('Old age group','Young age group'))
 ```
 
 # 9. Model comparison with LOO-CV

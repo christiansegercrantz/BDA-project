@@ -311,8 +311,15 @@ fit_hiera_young = sampling(hieramodel,
 
 # 7. Convergence diagnostics
 
-```{r}
-knitr::kable(head(monitor(fit_nonhiera_old, print = FALSE),3),
+```{r, warning=FALSE, message=FALSE}
+current_monitor <- monitor(fit_nonhiera_old, print = FALSE)
+diagnostics_names <- c(colnames(current_monitor)[1:10],"Bulk_ESS","Tail_ESS")
+diag_nonhiera_old <- current_monitor %>%
+  as_tibble(rownames = NA) %>%
+  rownames_to_column() %>%
+  select(diagnostics_names) %>%
+  top_n(3)
+knitr::kable(diag_nonhiera_old,
              caption = "The diagnostics of the nonhierarcical model for the old age group.")
 ```
 
@@ -320,8 +327,14 @@ knitr::kable(head(monitor(fit_nonhiera_old, print = FALSE),3),
 traceplot(fit_nonhiera_old, inc_warmup = FALSE, nrow = 3, pars=c("mu", "sigma", "ypred"))
 ```
 
-```{r}
-knitr::kable(head(monitor(fit_nonhiera_young, print = FALSE),3),
+```{r, warning=FALSE, message=FALSE}
+current_monitor <- monitor(fit_nonhiera_young, print = FALSE)
+diagnostics_names <- c(colnames(current_monitor)[1:10],"Bulk_ESS","Tail_ESS")
+diag_nonhiera_old <- current_monitor %>%
+  as_tibble() %>%
+  select(diagnostics_names) %>%
+  top_n(3)
+knitr::kable(diag_nonhiera_old,
              caption = "The diagnostics of the nonhierarcical model for the young age group.")
 ```
 
@@ -329,8 +342,14 @@ knitr::kable(head(monitor(fit_nonhiera_young, print = FALSE),3),
 traceplot(fit_nonhiera_young, inc_warmup = FALSE, nrow = 3, pars=c("mu", "sigma", "ypred"))
 ```
 
-```{r}
-knitr::kable(head(monitor(fit_hiera_old, print = FALSE),3),
+```{r, warning=FALSE, message=FALSE}
+current_monitor <- monitor(fit_hiera_old, print = FALSE)
+diagnostics_names <- c(colnames(current_monitor)[1:10],"Bulk_ESS","Tail_ESS")
+diag_nonhiera_old <- current_monitor %>%
+  as_tibble() %>%
+  select(diagnostics_names) %>%
+  top_n(3)
+knitr::kable(diag_nonhiera_old,
              caption = "The diagnostics of the hierarcical model for the old age group.")
 ```
 
@@ -338,8 +357,14 @@ knitr::kable(head(monitor(fit_hiera_old, print = FALSE),3),
 traceplot(fit_hiera_old, inc_warmup = FALSE, nrow = 3, pars=c("mu", "sigma", "ypred"))
 ```
 
-```{r}
-knitr::kable(head(monitor(fit_hiera_young, print = FALSE),3),
+```{r, warning=FALSE, message=FALSE}
+current_monitor <- monitor(fit_hiera_young, print = FALSE)
+diagnostics_names <- c(colnames(current_monitor)[1:10],"Bulk_ESS","Tail_ESS")
+diag_nonhiera_old <- current_monitor %>%
+  as_tibble() %>%
+  select(diagnostics_names) %>%
+  top_n(3)
+knitr::kable(diag_nonhiera_old,
              caption = "The diagnostics of the hierarcical model for the young age group.")
 ```
 

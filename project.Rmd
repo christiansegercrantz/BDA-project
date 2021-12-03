@@ -311,6 +311,9 @@ fit_hiera_young = sampling(hieramodel,
 
 # 7. Convergence diagnostics
 
+
+# Posterior predictive checks
+
 ```{r, warning=FALSE, message=FALSE}
 current_monitor <- monitor(fit_nonhiera_old, print = FALSE)
 diagnostics_names <- c(colnames(current_monitor)[1:10],"Bulk_ESS","Tail_ESS")

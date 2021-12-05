@@ -406,7 +406,7 @@ ggplot(data = extract_nonhiera_old ,aes(x=mu, y=sigma))+geom_point()
 
 # 8. Posterior predictive checks
 
-We compare the posterior distribution with the original distribution visually. We can see that the posterior distribution is similar to the original distribution in all cases, indicating that the model is working as it should.
+We compare the posterior distribution with the original distribution visually. We can see that the posterior distribution is similar to the original distribution in all cases, indicating that the model is working as it should. 
 
 ```{r, echo=FALSE}
 extract_hiera_old <- data.frame(extract(fit_hiera_old))

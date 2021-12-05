@@ -95,19 +95,25 @@ $y_{ij} \sim \mathcal{N}(\mu_j, \sigma_j)$
 
 $\mu_j \sim \mathcal{N}(\mu_{prior}, \sigma_{prior})$
 
-$\sigma_j \sim \text{Inv-}\chi^2(Var_{prior})$.
+$\sigma_j \sim \text{Inv-}\chi^2(Var_{prior})$,
+
+where $\mu_j$ is the mean, $\sigma_j$ describes the variance, and $y_{ij}$ consists of the posterior draws.
 
 Using the same notation we get the following hierarchical model:
 
-$y_{i} \sim \mathcal{N}(\mu_i, \sigma)$
+$$y_{ij} \sim \mathcal{N}(\mu_j, \sigma_j)$$
 
-$\mu_i \sim \mathcal{N}(\mu, \tau)$
+$$\mu_j \sim \mathcal{N}(\mu_{prior}, \sigma_{prior})$$
 
-$\mu \sim \mathcal{N}(\mu_{prior}, \sigma_{prior})$
+$$\sigma_j \sim \text{Inv-}\chi^2(Var_{prior})$$
 
-$\tau \sim \text{Inv-}\chi^2(Var_{prior})$
+$$\mu_{prior} \sim \mathcal{N}(\mu_{hyperprior}, \tau)$$
 
-$\sigma \sim \text{Inv-}\chi^2(\tau)$.
+$$\sigma_{prior} \sim \text{Inv-}\chi^2(\tau)$$
+
+$$ Var_{prior} \sim \text{Inv-}\chi^2(\tau)$$
+
+Here, $y_{ij}$ consists of the posterior draws, $\mu_j$ is the mean, $\sigma_j$ describes the variance. $\mu_{prior}$, $\sigma_{prior}$, and $Var_{prior}$ are the priors, and $\mu_{hyperprior}$ and $\tau$ are the hyperpriors used for generating the priors for the hierarchical model.
 
 # 4. Priors
 

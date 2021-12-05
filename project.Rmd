@@ -498,11 +498,18 @@ knitr::kable(loo_hiera_young$estimates,
              caption = "The loave-one-out diagnostics of the hierarcical model for the young age group.")
 ```
 
-```{r, }
-print("The model for the old:")
-loo_compare(loo_nonhiera_old, loo_hiera_old)
-print("The model for the young:")
-loo_compare(loo_nonhiera_young, loo_hiera_young)
+In Table \@ref(tab:loo_comp_old) we can see the the comparison of the nonhierarchical and hierarchical models for the old age group and in Table \@ref(tab:loo_comp_old) the respective information for the young group.
+
+```{r loo_comp_old}
+loo_comparison_old<- loo_compare(loo_nonhiera_old, loo_hiera_old)
+knitr::kable(loo_comparison_old,
+             caption = "Comparsion of the models using leave-one-out for the old age group.")
+```
+
+```{r loo_comp_young}
+loo_comparison_young <- loo_compare(loo_nonhiera_young, loo_hiera_young)
+knitr::kable(loo_comparison_young,
+             caption = "Comparsion of the models using leave-one-out for the young age group.")
 ```
 
 # 10. Predictive performance assesment

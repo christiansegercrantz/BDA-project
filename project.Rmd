@@ -119,8 +119,19 @@ Here, $y_{ij}$ consists of the posterior draws, $\mu_j$ is the mean, $\sigma_j$ 
 
 We use weekly informative priors for parameters $\mu$, $\sigma$ and $Var$. They are chosen based on the blood pressure data that we get from the data set. From the plotted data we choose priors that possibly could describe a normal distribution describing the blood pressure. $\mu$, $\sigma$ and $Var$ for the distribution of our two different age groups:
 
--  For $Age \leq 30: \mu_{prior} = 65,\:\sigma_{prior}=10,\: Var_{prior}=20$. Our prior $\mu$ is slightly lower here than for the older age group. Other priors stay the same.
--  For $Age > 30: \mu_{prior} = 75,\:\sigma_{prior}=10,\: Var_{prior}=20$. Here the prior $\mu$ is higher, because it can be seen from the plot that the mean is higher, but other priors stay the same.
+For non-hierarchical model:
+
+-  For $Age \leq 30: \mu_{prior} = 71,\:\sigma_{prior}=10,\: Var_{prior}=20$. Our prior $\mu$ is slightly lower here than for the older age group. Other priors stay the same.
+-  For $Age > 30: \mu_{prior} = 78,\:\sigma_{prior}=10,\: Var_{prior}=20$. Here the prior $\mu$ is higher, because it can be seen from the plot that the mean is higher, but other priors stay the same.
+
+For hierarchical:
+
+-  For $Age \leq 30: \mu_{hyperprior} = 75,\:\sigma_{hyperprior}=10,\: Var_{hyperprior}=20$. Our prior $\mu$ is slightly lower here than for the older age group. Other priors stay the same.
+-  For $Age > 30: \mu_{hyperprior} = 75,\:\sigma_{hyperprior}=10,\: Var_{hyperprior}=20$.
+
+As seen, the hyperpriors are the same for both age group, because the priors are then drawn based on the model.
+
+
 
 # 5. Stan code
 
@@ -216,6 +227,7 @@ We will need to run both of the models twice to get a model both for the young g
 The nonhierarchical model uses $\mu_{old}=75$, $\mu_{young}=65$, $\sigma_{prior}=10$, $\text{Var}_{prior}=20$. The data used is the blood pressure data from the dataset for the age group respectively.
 
 ### Old group
+
 In this section we can see the data used in the separate model for the old age group.
 ```{r}
 data_old <- data %>%

@@ -208,7 +208,6 @@ generated quantities {
 
 # 6. Running the Stan model
 
-
 We will need to run both of the models twice to get a model both for the young group and the old group. Therefore, we repeat almost the same process four times. The code is not included for all models for this reason. All models are ran with 4 chains and 2000 chains, of which one half (1000 iterations) are warmup.
 
 ## Nonhierarchical model
@@ -216,6 +215,7 @@ We will need to run both of the models twice to get a model both for the young g
 The nonhierarchical model uses $\mu_{old}=78$, $\mu_{young}=71$ (based on @normal_pressure), $\sigma_{prior}=10$, $\text{Var}_{prior}=20$. The data used is the blood pressure data from the dataset for the age group respectively.
 
 ### Old group
+
 In this section we can see the data used in the separate model for the old age group.
 ```{r}
 data_old <- data %>%

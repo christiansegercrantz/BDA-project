@@ -207,7 +207,7 @@ We will need to run both of the models twice to get a model both for the young g
 
 ## Nonhierarchical model
 
-The nonhierarchical model uses $\mu_{old}=75$, $\mu_{young}=65$, $\sigma_{prior}=10$, $\text{Var}_{prior}=20$. The data used is the blood pressure data from the dataset for the age group respectively.
+The nonhierarchical model uses $\mu_{old}=78$, $\mu_{young}=71$ (based on @normal_pressure), $\sigma_{prior}=10$, $\text{Var}_{prior}=20$. The data used is the blood pressure data from the dataset for the age group respectively.
 
 ### Old group
 In this section we can see the data used in the separate model for the old age group.
@@ -215,7 +215,7 @@ In this section we can see the data used in the separate model for the old age g
 data_old <- data %>%
   filter(AgeGroup == "Old")
 
-mean_mu_prior_old = 75
+mean_mu_prior_old = 78
 mean_sigma_prior_old = 10
 var_prior_old = 20
 data_nonhiera_old <- list(
@@ -245,7 +245,7 @@ In this section we can see the data used in the separate model for the young age
 data_young <- data %>%
   filter(AgeGroup == "Young")
 
-mean_mu_prior_young = 65
+mean_mu_prior_young = 71
 mean_sigma_prior_young = 10
 var_prior_young = 20
 data_nonhiera_young <- list(
@@ -270,13 +270,13 @@ fit_nonhiera_young = sampling(nonhieramodel,
 
 ## Hierarchical model
 
-The nonhierarchical model uses $\mu=70$ (same for both groups). All other parameters are the same as in the nonhierarchical model.
+The nonhierarchical model uses $\mu=75$ (same for both groups). All other parameters are the same as in the nonhierarchical model.
 
 ### Old group
 
 In this section we can see the data used in the hierarchical model for the old age group.
 ```{r, echo=FALSE}
-mean_mu_prior = 70
+mean_mu_prior = 75
 mean_sigma_prior = 10
 var_prior = 20
 data_hiera_old <- list(
@@ -303,7 +303,7 @@ fit_hiera_old = sampling(hieramodel,
 
 In this section we can see the data used in the hierarchical model for the young age group.
 ```{r}
-mean_mu_prior = 70
+mean_mu_prior = 75
 mean_sigma_prior = 10
 var_prior = 20
 data_hiera_young <- list(

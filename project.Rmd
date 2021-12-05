@@ -492,6 +492,8 @@ knitr::kable(loo_nonhiera_old$estimates,
 plot(loo_nonhiera_old)
 ```
 
+As we can see, all $\widehat k$ values are smaller than 0.5 for the old group nonhierarchical model, which indicates that the PSIS-LOO estimate is reliable. We get very similar results for the other models and groups, and have therefore left out the plots.
+
 ```{r, echo=FALSE}
 loo_nonhiera_young <- loo(fit_nonhiera_young, pars="log_lik")
 knitr::kable(loo_nonhiera_young$estimates,

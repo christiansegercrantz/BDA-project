@@ -15,6 +15,7 @@ output:
     df_print: paged
 urlcolor: blue
 bibliography: references.bib
+nocite: @high_blood_pressure
 ---
 
 ```{r steup,include=FALSE, echo=FALSE}

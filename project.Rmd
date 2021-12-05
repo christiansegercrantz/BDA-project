@@ -512,15 +512,15 @@ knitr::kable(loo_hiera_young$estimates,
              caption = "The loave-one-out diagnostics of the hierarcical model for the young age group.")
 ```
 
-In Table \@ref(tab:loo_comp_old) we can see the the comparison of the nonhierarchical and hierarchical models for the old age group and in Table \@ref(tab:loo_comp_old) the respective information for the young group.
+In Table 10 we can see the the comparison of the nonhierarchical and hierarchical models for the old age group and in Table 11 the respective information for the young group.
 
-```{r loo_comp_old}
+```{r loo_comp_old, echo=FALSE}
 loo_comparison_old<- loo_compare(loo_nonhiera_old, loo_hiera_old)
 knitr::kable(loo_comparison_old,
              caption = "Comparsion of the models using leave-one-out for the old age group.")
 ```
 
-```{r loo_comp_young}
+```{r loo_comp_young, echo=FALSE}
 loo_comparison_young <- loo_compare(loo_nonhiera_young, loo_hiera_young)
 knitr::kable(loo_comparison_young,
              caption = "Comparsion of the models using leave-one-out for the young age group.")

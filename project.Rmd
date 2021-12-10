@@ -436,7 +436,7 @@ extract_hiera_young <- data.frame(extract(fit_hiera_young))
 extract_nonhiera_young <- data.frame(extract(fit_nonhiera_young))
 ```
 
-```{r, echo=FALSE, fig.pos='H', fig.cap="Hierarical posterior predictive vs original data for the old age group."}
+```{r, echo=FALSE, fig.pos='H', fig.cap="Nonhierarcichal posterior predictive vs original data for the old age group."}
 ggplot(extract_nonhiera_old, aes(x=ypred)) +
   geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#F8766D", alpha=0.15)  + 
   geom_histogram(data= data_old, aes(x=BloodPressure,y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#00BFC4", alpha=0.15) +
@@ -448,7 +448,7 @@ ggplot(extract_nonhiera_old, aes(x=ypred)) +
   scale_colour_manual(name = 'Denisty', values=c('Sim'='red','Orig'='blue'), labels = c('Predictive posterior','Original data'))
 ```
 
-```{r, echo=FALSE, fig.pos='h', fig.cap="Hierarical posterior predictive vs original data for the old age group."}
+```{r, echo=FALSE, fig.pos='h', fig.cap="Hierarcichal posterior predictive vs original data for the old age group."}
 ggplot(extract_hiera_old, aes(x=ypred)) +
   geom_histogram(aes(y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#F8766D", alpha=0.15)  + 
   geom_histogram(data= data_old, aes(x=BloodPressure,y=..density..), binwidth = 5, colour="black",position = "identity", colour="black", fill="#00BFC4", alpha=0.15) +
@@ -562,6 +562,26 @@ for (i in 1:length(mean_mu_prior_sensitivity)){
     ))
   }
 }
+```
+
+```{r posterior_plots, echo=FALSE, fig.cap="Four of the used priors. Note, the first prior continues beyond the height of the y-axis until approximately 0.4."}
+n <- -1000:1000
+priors <- as.data.frame(n)
+#prior_text <- vector(mode = "list", length = 4)
+for (i in 1:4){
+  temp <- dnorm(n, mean_mu_prior_sensitivity[i], mean_sigma_prior_sensitivity[i])
+  priors[paste0("prior_",i)] = temp
+}
+
+ggplot(priors, aes(x=n)) +
+  geom_line(aes(y = prior_1, color = "N(0,1)")) +
+  geom_line(aes(y = prior_2, color = "N(50,10)")) +
+  geom_line(aes(y = prior_3, color = "N(100,100)")) +
+  geom_line(aes(y = prior_3, color = "N(1000,1000)")) +
+  ylim(0, 0.0545) +
+  ylab("Denisty") + xlab("") +
+  guides(color=guide_legend(title="Priors"))
+  
 ```
 
 ```{r, echo=FALSE}
